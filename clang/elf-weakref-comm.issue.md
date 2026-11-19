@@ -1,0 +1,97 @@
+[fuzzer-found] [MC] [ELF] Assembler crashes on `.comm` for a `.weakref` alias
+
+The ELF assembler crashes when `.comm` is used on a symbol already defined with `.weakref`.
+For example, the following `.s` file causes a crash.
+
+```asm
+.weakref x, y
+.comm x, 8, 8
+```
+
+```console
+$ clang -c elf-weakref-comm.s
+```
+
+### Actual behavior
+
+Trunk (c0005dfe81fe) with assertions:
+
+```console
+$ clang --version
+clang version 24.0.0git
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /opt/llvm/bin
+Build config: +assertions
+$ clang -c elf-weakref-comm.s
+clang: /src/llvm-project/llvm/include/llvm/MC/MCSymbol.h:290: uint64_t llvm::MCSymbol::getOffset() const: Assertion `kind == Kind::Regular && "Cannot get offset for a common/variable symbol"' failed.
+PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace and dumped files.
+Stack dump:
+0.	Program arguments: clang -c elf-weakref-comm.s
+...
+```
+
+The full output is at the end.
+
+### Expected behavior
+
+An error instead of a crash. GNU as reports ``Error: symbol `x' is already defined``.
+
+clang (assertions trunk, with `-x assembler`): https://godbolt.org/z/33v3PjbMz
+
+### Additional information
+
+- Other ELF targets (aarch64, riscv64, bpf) crash the same way.
+- In the reverse order (`.comm` then `.weakref`), it crashes with another assertion: `Cannot equate a common symbol` in `MCSymbol::setVariableValue`.
+
+Found by fuzzing.
+
+<details><summary>Full output</summary>
+
+```console
+$ clang -c elf-weakref-comm.s
+clang: /src/llvm-project/llvm/include/llvm/MC/MCSymbol.h:290: uint64_t llvm::MCSymbol::getOffset() const: Assertion `kind == Kind::Regular && "Cannot get offset for a common/variable symbol"' failed.
+PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace and dumped files.
+Stack dump:
+0.	Program arguments: clang -c elf-weakref-comm.s
+Stack dump without symbol names (ensure you have llvm-symbolizer in your PATH or set the environment var `LLVM_SYMBOLIZER_PATH` to point to it):
+0  clang     0x000055f572770d11 llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) + 65
+1  clang     0x000055f57276d59c llvm::sys::RunSignalHandlers() + 76
+2  clang     0x000055f57276e07d llvm::sys::CleanupOnSignal(unsigned long) + 221
+3  clang     0x000055f5726a0df8
+4  libc.so.6 0x00007f809ddf9330
+5  libc.so.6 0x00007f809de52bec pthread_kill + 284
+6  libc.so.6 0x00007f809ddf927e gsignal + 30
+7  libc.so.6 0x00007f809dddc8ff abort + 223
+8  libc.so.6 0x00007f809dddc81b
+9  libc.so.6 0x00007f809ddef517
+10 clang     0x000055f5723f7a03 llvm::MCELFStreamer::emitCommonSymbol(llvm::MCSymbol*, unsigned long, llvm::Align) + 899
+11 clang     0x000055f5724a4861
+12 clang     0x000055f5724b4b67
+13 clang     0x000055f5724b10ca
+14 clang     0x000055f57001c771
+15 clang     0x000055f57001ea79 cc1as_main(llvm::ArrayRef<char const*>, char const*, void*) + 4713
+16 clang     0x000055f57000998f
+17 clang     0x000055f570009a66
+18 clang     0x000055f5732f6ccd
+19 clang     0x000055f5726a11fe llvm::CrashRecoveryContext::RunSafely(llvm::function_ref<void ()>) + 158
+20 clang     0x000055f5732f7beb
+21 clang     0x000055f5732b3177 clang::driver::Compilation::ExecuteCommand(clang::driver::Command const&, clang::driver::Command const*&, bool) const + 167
+22 clang     0x000055f5732b678c clang::driver::Compilation::ExecuteJobs(clang::driver::JobList const&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&, bool) const + 604
+23 clang     0x000055f5732c87d4 clang::driver::Driver::ExecuteCompilation(clang::driver::Compilation&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&) + 404
+24 clang     0x000055f57000ef87 clang_main(int, char**, llvm::ToolContext const&) + 7399
+25 clang     0x000055f56ffa5949 main + 121
+26 libc.so.6 0x00007f809ddde1ca
+27 libc.so.6 0x00007f809ddde28b __libc_start_main + 139
+28 clang     0x000055f570008d05 _start + 37
+clang: error: clang integrated assembler command failed due to signal (use -v to see invocation)
+clang version 24.0.0git
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /opt/llvm/bin
+Build config: +assertions
+clang: note: diagnostic msg: Error generating preprocessed source(s) - no preprocessable inputs.
+Aborted (core dumped)
+```
+
+</details>
