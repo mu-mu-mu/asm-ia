@@ -29,7 +29,7 @@ $ clang -c x86-intel-mov-r16-from-sreg.s && objdump -d -M intel x86-intel-mov-r1
 
 ### Expected behavior
 
-`mov ax, ds` is encoded as `66 8c d8` and keeps the upper 16 bits of `rax`.
+`mov ax, ds` is encoded as `66 8c d8`.
 
 clang (trunk): https://godbolt.org/z/sq6bv6W5K
 
