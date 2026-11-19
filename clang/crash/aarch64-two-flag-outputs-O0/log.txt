@@ -1,0 +1,66 @@
+clang: /src/llvm-project/llvm/lib/Target/AArch64/AArch64InstrInfo.cpp:6407: void llvm::AArch64InstrInfo::copyPhysRegImpl(llvm::MachineBasicBlock&, llvm::MachineBasicBlock::iterator, const llvm::DebugLoc&, llvm::Register, llvm::Register, bool, bool, bool) const: Assertion `AArch64::GPR64RegClass.contains(DestReg) && "Invalid NZCV copy"' failed.
+PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace and dumped files.
+Stack dump:
+0.	Program arguments: clang --target=aarch64-linux-gnu -O0 -c aarch64-two-flag-outputs-O0.c
+1.	<eof> parser at end of file
+2.	Code generation
+3.	Running pass 'Function Pass Manager' on module 'aarch64-two-flag-outputs-O0.c'.
+4.	Running pass 'Post-RA pseudo instruction expansion pass' on function '@f'
+Stack dump without symbol names (ensure you have llvm-symbolizer in your PATH or set the environment var `LLVM_SYMBOLIZER_PATH` to point to it):
+0  clang     0x000055d7e9280d11 llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) + 65
+1  clang     0x000055d7e927d59c llvm::sys::RunSignalHandlers() + 76
+2  clang     0x000055d7e927e07d llvm::sys::CleanupOnSignal(unsigned long) + 221
+3  clang     0x000055d7e91b0df8
+4  libc.so.6 0x00007f6be20b0330
+5  libc.so.6 0x00007f6be2109bec pthread_kill + 284
+6  libc.so.6 0x00007f6be20b027e gsignal + 30
+7  libc.so.6 0x00007f6be20938ff abort + 223
+8  libc.so.6 0x00007f6be209381b
+9  libc.so.6 0x00007f6be20a6517
+10 clang     0x000055d7e71560c0
+11 clang     0x000055d7e87c1e07 llvm::TargetInstrInfo::lowerCopy(llvm::MachineInstr*) const + 231
+12 clang     0x000055d7e88dd51f
+13 clang     0x000055d7e88ddda8
+14 clang     0x000055d7e8579cbb
+15 clang     0x000055d7e8c27869 llvm::FPPassManager::runOnFunction(llvm::Function&) + 1785
+16 clang     0x000055d7e8c27c61 llvm::FPPassManager::runOnModule(llvm::Module&) + 49
+17 clang     0x000055d7e8c28650
+18 clang     0x000055d7e8c28ef4 llvm::legacy::PassManagerImpl::run(llvm::Module&) + 196
+19 clang     0x000055d7ea53d12d
+20 clang     0x000055d7ea53d395 llvm::runCodeGenPipeline(llvm::TargetMachine&, llvm::Module&, llvm::raw_pwrite_stream&, llvm::raw_pwrite_stream*, llvm::CodeGenFileType, bool, bool, llvm::ModuleSummaryIndex const*, llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem>) + 533
+21 clang     0x000055d7e96b6d87
+22 clang     0x000055d7e96b7261 clang::emitBackendOutput(clang::CompilerInstance&, clang::CodeGenOptions&, llvm::Module*, clang::BackendAction, llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem>, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>, clang::BackendConsumer*) + 449
+23 clang     0x000055d7e9d89e55 clang::BackendConsumer::HandleTranslationUnit(clang::ASTContext&) + 1861
+24 clang     0x000055d7ebae5c6c clang::ParseAST(clang::Sema&, bool, bool) + 1084
+25 clang     0x000055d7ea108cb1 clang::FrontendAction::Execute() + 65
+26 clang     0x000055d7ea090378 clang::CompilerInstance::ExecuteAction(clang::FrontendAction&) + 2472
+27 clang     0x000055d7ea1e42d3 clang::ExecuteCompilerInvocation(clang::CompilerInstance*) + 227
+28 clang     0x000055d7e6b2352f cc1_main(llvm::ArrayRef<char const*>, char const*, void*) + 7583
+29 clang     0x000055d7e6b19887
+30 clang     0x000055d7e6b19a66
+31 clang     0x000055d7e9e06ccd
+32 clang     0x000055d7e91b11fe llvm::CrashRecoveryContext::RunSafely(llvm::function_ref<void ()>) + 158
+33 clang     0x000055d7e9e07beb
+34 clang     0x000055d7e9dc3177 clang::driver::Compilation::ExecuteCommand(clang::driver::Command const&, clang::driver::Command const*&, bool) const + 167
+35 clang     0x000055d7e9dc678c clang::driver::Compilation::ExecuteJobs(clang::driver::JobList const&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&, bool) const + 604
+36 clang     0x000055d7e9dd87d4 clang::driver::Driver::ExecuteCompilation(clang::driver::Compilation&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&) + 404
+37 clang     0x000055d7e6b1ef87 clang_main(int, char**, llvm::ToolContext const&) + 7399
+38 clang     0x000055d7e6ab5949 main + 121
+39 libc.so.6 0x00007f6be20951ca
+40 libc.so.6 0x00007f6be209528b __libc_start_main + 139
+41 clang     0x000055d7e6b18d05 _start + 37
+clang: error: clang frontend command failed due to signal (use -v to see invocation)
+clang version 24.0.0git
+Target: aarch64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /opt/llvm/bin
+Build config: +assertions
+clang: note: diagnostic msg: 
+********************
+
+PLEASE ATTACH THE FOLLOWING CRASH REPRODUCER FILES TO THE BUG REPORT:
+clang: note: diagnostic msg: /work/crash-aarch64-two-flag-outputs-O0/aarch64-two-flag-outputs-O0-34ae42.c
+clang: note: diagnostic msg: /work/crash-aarch64-two-flag-outputs-O0/aarch64-two-flag-outputs-O0-34ae42.sh
+clang: note: diagnostic msg: 
+
+********************

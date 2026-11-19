@@ -1,0 +1,79 @@
+clang version 24.0.0git
+Target: x86_64-unknown-linux-gnu
+Thread model: posix
+InstalledDir: /opt/llvm/bin
+Build config: +assertions
+$ clang --target=riscv64 -march=rv64gcv -c riscv-rvv-fixed-vector-regvar.c
+clang: /src/llvm-project/llvm/include/llvm/Support/TypeSize.h:202: constexpr llvm::details::FixedOrScalableQuantity<LeafTy, ValueTy>::ScalarTy llvm::details::FixedOrScalableQuantity<LeafTy, ValueTy>::getFixedValue() const [with LeafTy = llvm::TypeSize; ValueTy = long unsigned int; ScalarTy = long unsigned int]: Assertion `(!isScalable() || isZero()) && "Request for a fixed element count on a scalable object"' failed.
+PLEASE submit a bug report to https://github.com/llvm/llvm-project/issues/ and include the crash backtrace and dumped files.
+Stack dump:
+0.	Program arguments: clang --target=riscv64 -march=rv64gcv -c riscv-rvv-fixed-vector-regvar.c
+1.	<eof> parser at end of file
+2.	Code generation
+3.	Running pass 'Function Pass Manager' on module 'riscv-rvv-fixed-vector-regvar.c'.
+4.	Running pass 'RISC-V DAG->DAG Pattern Instruction Selection' on function '@f'
+Stack dump without symbol names (ensure you have llvm-symbolizer in your PATH or set the environment var `LLVM_SYMBOLIZER_PATH` to point to it):
+0  clang     0x00005575c6f23d11 llvm::sys::PrintStackTrace(llvm::raw_ostream&, int) + 65
+1  clang     0x00005575c6f2059c llvm::sys::RunSignalHandlers() + 76
+2  clang     0x00005575c6f2107d llvm::sys::CleanupOnSignal(unsigned long) + 221
+3  clang     0x00005575c6e53df8
+4  libc.so.6 0x00007ff5cf4ea330
+5  libc.so.6 0x00007ff5cf543bec pthread_kill + 284
+6  libc.so.6 0x00007ff5cf4ea27e gsignal + 30
+7  libc.so.6 0x00007ff5cf4cd8ff abort + 223
+8  libc.so.6 0x00007ff5cf4cd81b
+9  libc.so.6 0x00007ff5cf4e0517
+10 clang     0x00005575c859a44f
+11 clang     0x00005575c85a2754
+12 clang     0x00005575c85a8a88 llvm::RegsForValue::getCopyToRegs(llvm::SDValue, llvm::SelectionDAG&, llvm::SDLoc const&, llvm::SDValue&, llvm::SDValue*, llvm::Value const*, llvm::ISD::NodeType) const + 472
+13 clang     0x00005575c85bf651
+14 clang     0x00005575c85d36cb llvm::SelectionDAGBuilder::visitInlineAsm(llvm::CallBase const&, llvm::BasicBlock const*) + 7371
+15 clang     0x00005575c8604c70 llvm::SelectionDAGBuilder::visit(llvm::Instruction const&) + 144
+16 clang     0x00005575c86a5eda llvm::SelectionDAGISel::SelectBasicBlock(llvm::ilist_iterator_w_bits<llvm::ilist_detail::node_options<llvm::Instruction, true, false, void, true, llvm::BasicBlock>, false, true>, llvm::ilist_iterator_w_bits<llvm::ilist_detail::node_options<llvm::Instruction, true, false, void, true, llvm::BasicBlock>, false, true>, bool&) + 346
+17 clang     0x00005575c86a6d62 llvm::SelectionDAGISel::SelectAllBasicBlocks(llvm::Function const&) + 2706
+18 clang     0x00005575c86a8587 llvm::SelectionDAGISel::runOnMachineFunction(llvm::MachineFunction&) + 247
+19 clang     0x00005575c868fea7 llvm::SelectionDAGISelLegacy::runOnMachineFunction(llvm::MachineFunction&) + 167
+20 clang     0x00005575c621ccbb
+21 clang     0x00005575c68ca869 llvm::FPPassManager::runOnFunction(llvm::Function&) + 1785
+22 clang     0x00005575c68cac61 llvm::FPPassManager::runOnModule(llvm::Module&) + 49
+23 clang     0x00005575c68cb650
+24 clang     0x00005575c68cbef4 llvm::legacy::PassManagerImpl::run(llvm::Module&) + 196
+25 clang     0x00005575c81e012d
+26 clang     0x00005575c81e0395 llvm::runCodeGenPipeline(llvm::TargetMachine&, llvm::Module&, llvm::raw_pwrite_stream&, llvm::raw_pwrite_stream*, llvm::CodeGenFileType, bool, bool, llvm::ModuleSummaryIndex const*, llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem>) + 533
+27 clang     0x00005575c7359d87
+28 clang     0x00005575c735a261 clang::emitBackendOutput(clang::CompilerInstance&, clang::CodeGenOptions&, llvm::Module*, clang::BackendAction, llvm::IntrusiveRefCntPtr<llvm::vfs::FileSystem>, std::unique_ptr<llvm::raw_pwrite_stream, std::default_delete<llvm::raw_pwrite_stream>>, clang::BackendConsumer*) + 449
+29 clang     0x00005575c7a2ce55 clang::BackendConsumer::HandleTranslationUnit(clang::ASTContext&) + 1861
+30 clang     0x00005575c9788c6c clang::ParseAST(clang::Sema&, bool, bool) + 1084
+31 clang     0x00005575c7dabcb1 clang::FrontendAction::Execute() + 65
+32 clang     0x00005575c7d33378 clang::CompilerInstance::ExecuteAction(clang::FrontendAction&) + 2472
+33 clang     0x00005575c7e872d3 clang::ExecuteCompilerInvocation(clang::CompilerInstance*) + 227
+34 clang     0x00005575c47c652f cc1_main(llvm::ArrayRef<char const*>, char const*, void*) + 7583
+35 clang     0x00005575c47bc887
+36 clang     0x00005575c47bca66
+37 clang     0x00005575c7aa9ccd
+38 clang     0x00005575c6e541fe llvm::CrashRecoveryContext::RunSafely(llvm::function_ref<void ()>) + 158
+39 clang     0x00005575c7aaabeb
+40 clang     0x00005575c7a66177 clang::driver::Compilation::ExecuteCommand(clang::driver::Command const&, clang::driver::Command const*&, bool) const + 167
+41 clang     0x00005575c7a6978c clang::driver::Compilation::ExecuteJobs(clang::driver::JobList const&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&, bool) const + 604
+42 clang     0x00005575c7a7b7d4 clang::driver::Driver::ExecuteCompilation(clang::driver::Compilation&, llvm::SmallVectorImpl<std::pair<int, clang::driver::Command const*>>&) + 404
+43 clang     0x00005575c47c1f87 clang_main(int, char**, llvm::ToolContext const&) + 7399
+44 clang     0x00005575c4758949 main + 121
+45 libc.so.6 0x00007ff5cf4cf1ca
+46 libc.so.6 0x00007ff5cf4cf28b __libc_start_main + 139
+47 clang     0x00005575c47bbd05 _start + 37
+clang: error: clang frontend command failed due to signal (use -v to see invocation)
+clang version 24.0.0git
+Target: riscv64-unknown-unknown
+Thread model: posix
+InstalledDir: /opt/llvm/bin
+Build config: +assertions
+clang: note: diagnostic msg: 
+********************
+
+PLEASE ATTACH THE FOLLOWING CRASH REPRODUCER FILES TO THE BUG REPORT:
+clang: note: diagnostic msg: /work/crash-riscv-rvv-fixed-vector-regvar/riscv-rvv-fixed-vector-regvar-6adebb.c
+clang: note: diagnostic msg: /work/crash-riscv-rvv-fixed-vector-regvar/riscv-rvv-fixed-vector-regvar-6adebb.sh
+clang: note: diagnostic msg: 
+
+********************
+Aborted (core dumped)

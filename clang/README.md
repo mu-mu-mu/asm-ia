@@ -10,3 +10,4 @@
 - [wasm-instruction-outside-function](wasm-instruction-outside-function.issue.md) (B)
 - [bpf-imm-forward-set](bpf-imm-forward-set.issue.md) (B)
 - [elf-weakref-comm](elf-weakref-comm.issue.md) (B)
+- [x86-intel-mov-r16-from-sreg](x86-intel-mov-r16-from-sreg.issue.md) (B)
